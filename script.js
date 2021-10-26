@@ -114,21 +114,21 @@ class ContactsApp extends Contacts {
       <div class='modal-wrapper'>
         <div class='modal-box'>
           <span class="close">x</span>
-          <h1>Modal window</h1>
+          <h1>Редактировать контакт</h1>
         </div>
       </div>
       `)
       const contentBox = document.querySelector('.modal-box');
-      
+
 
       const nameInput = document.createElement('input');
-      nameInput.placeholder = 'Введите новое имя';
+      nameInput.placeholder = this.dataList[id].data.name;
       const emailInput = document.createElement('input');
-      emailInput.placeholder = 'Введите новый Email';
+      emailInput.placeholder = this.dataList[id].data.email;
       const addressInput = document.createElement('input');
-      addressInput.placeholder = 'Введите новый адрес';
+      addressInput.placeholder = this.dataList[id].data.address;
       const phoneInput = document.createElement('input');
-      phoneInput.placeholder = 'Введите новый телефон';
+      phoneInput.placeholder = this.dataList[id].data.phone;
       const save = document.createElement('button');
       save.innerText = 'Сохранить';
 
@@ -146,8 +146,8 @@ class ContactsApp extends Contacts {
       const close = document.querySelector('.close');
       close.addEventListener('click', closeModal);
     };
-    
-    
+
+
     const contactsBtn = document.createElement('div');
     const buttonEdit = document.createElement('button');
     buttonEdit.innerHTML = 'Редактировать';
