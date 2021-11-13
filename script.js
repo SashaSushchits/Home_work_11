@@ -1,15 +1,21 @@
 class Contacts {
-  constructor(data) {
+  constructor(name) {
     this.dataList = [];
   }
   add(name, email, address, phone) {
-    const id = this.dataList.length;
-    const contact = new User({ id, name, email, address, phone });
-    this.dataList.push(contact);
+    if(name, email, address, phone) {
+      const id = this.dataList.length;
+      const contact = new User({ id, name, email, address, phone });
+      this.dataList.push(contact);
+    }
+    
   }
-  edit(obj) {
-    const { id } = obj;
-    this.dataList[id].edit(obj);
+  edit(data) {
+    const { id, name, email, address, phone } = data;
+    this.dataList[id].name = name;
+    this.dataList[id].email = email;
+    this.dataList[id].address = address;
+    this.dataList[id].phone = phone;
   }
   remove(id) {
     delete this.dataList[id];
@@ -20,22 +26,47 @@ class Contacts {
 }
 
 class User {
-  constructor(data) {
-    this.data = data;
+  constructor({id, name, email, address, phone}) {
+    this.name = name;
+    this.email = email;
+    this.address = address;
+    this.phone = phone;
+    this.id = id;
   }
 
-  edit(obj) {
-    return Object.assign(this.data, obj);
+  edit({name = this.name, email = this.email, address = this.address, phone = this.phone}) {
+    this.name = name;
+    this.email = email;
+    this.address = address;
+    this.phone = phone;
+    // return Object.assign(this.data, obj);
   }
 
   get() {
-    return this.data;
+    return {
+        id: this.id,
+        name: this.name,
+        email: this.email,
+        address: this.address,
+        phone: this.phone,
+    }
   }
 }
 
 class ContactsApp extends Contacts {
   constructor() {
     super()
+  }
+
+  get localContacts() {
+    const jsonContacts = localStorage.getItem('contacts');
+    return JSON.parse(jsonContacts);
+  }
+
+  set localContacts(dataList){
+    const jsonContacts = JSON.stringify(dataList);
+    localStorage.setItem('contacts', jsonContacts);
+    document.cookie ='storageExpiration = addNewUser ; max-age = 3'
   }
 
   onAdd() {
@@ -54,22 +85,28 @@ class ContactsApp extends Contacts {
     this.app.appendChild(listContact);
     listContact.id = 'listContact';
     this.dataList.map((dataL) => {
-      const li = document.createElement('li');
-      // li.classList.add('listLi');
-      const nameList = document.createElement('h3');
-      nameList.innerText = dataL.data.name;
-      const emailAddressPhone = document.createElement('p');
-      emailAddressPhone.innerHTML = 'Email: ' + dataL.data.email + '; Address: ' + dataL.data.address + '; Phone: ' + dataL.data.phone;
-      li.appendChild(nameList);
-      li.appendChild(emailAddressPhone);
-      listContact.appendChild(li);
-      const createBtns = this.createContactsBtns(dataL.data.id);
-      li.appendChild(createBtns);
+      if(dataL){ 
+        const li = document.createElement('li');
+        // li.classList.add('listLi');
+        const nameList = document.createElement('h3');
+        // debugger
+        nameList.innerText = dataL.name;
+        const emailAddressPhone = document.createElement('p');
+        emailAddressPhone.innerHTML = 'Email: ' + dataL.email + '; Address: ' + dataL.address + '; Phone: ' + dataL.phone;
+        li.appendChild(nameList);
+        li.appendChild(emailAddressPhone);
+        listContact.appendChild(li);
+        const createBtns = this.createContactsBtns(dataL.id);
+        li.appendChild(createBtns);
+    }
       // this.onAdd();
     });
+   
+    this.localContacts = this.dataList;
+    
   }
 
-  init() {
+  async init() {
     const form = document.createElement('form');
     const inputName = document.createElement('input');
     inputName.placeholder = 'Введите ваше имя';
@@ -99,8 +136,22 @@ class ContactsApp extends Contacts {
       event.currentTarget[3].value = '';
       this.add(name, email, address, phone);
       this.onAdd();
+      // this.localContacts(this.dataList);
+
     })
     document.body.appendChild(form);
+
+    if (!localStorage.getItem('contacts')) {
+      this.localContacts = this.dataList;
+    } else {
+      this.dataList = this.localContacts;
+      this.onAdd();
+      }
+    
+    // const response = await fetch('https://jsonplaceholder.typicode.com/users');
+    // const result = await response.json();
+    // this.dataList = result;
+    // this.onAdd();
   }
 
   createContactsBtns(id) {
@@ -122,13 +173,13 @@ class ContactsApp extends Contacts {
 
 
       const nameInput = document.createElement('input');
-      nameInput.placeholder = this.dataList[id].data.name;
+      nameInput.placeholder = this.dataList[id].name;
       const emailInput = document.createElement('input');
-      emailInput.placeholder = this.dataList[id].data.email;
+      emailInput.placeholder = this.dataList[id].email;
       const addressInput = document.createElement('input');
-      addressInput.placeholder = this.dataList[id].data.address;
+      addressInput.placeholder = this.dataList[id].address;
       const phoneInput = document.createElement('input');
-      phoneInput.placeholder = this.dataList[id].data.phone;
+      phoneInput.placeholder = this.dataList[id].phone;
       const save = document.createElement('button');
       save.innerText = 'Сохранить';
 
